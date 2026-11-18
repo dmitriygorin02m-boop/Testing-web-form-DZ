@@ -83,6 +83,10 @@ build_script:
       }
       
       Write-Host "Application is ready!"
-      Write-Host "Starting Gradle tests..."
-                        
-      .\gradlew.bat clean build
+        Write-Host "Starting Gradle tests..."
+    
+        & .\gradlew.bat clean build 2>&1
+    
+        if ($LASTEXITCODE -ne 0) {
+        throw "Gradle build failed!"
+}
