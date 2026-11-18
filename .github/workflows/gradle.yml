@@ -1,7 +1,7 @@
 
 name: Java CI with Gradle
 
-on: [ push, pull_request ]
+on: [push, pull_request]
 
 jobs:
   build:
@@ -25,30 +25,20 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Start application and build
-        run: |
-          java -jar ./artifacts/app-order.jar > app.log 2>&1 &
-          APP_PID=$!
+      - name: Start application
+        run: java -jar ./artifacts/app-order.jar &
 
+      - name: Wait for application
+        run: |
           for i in {1..30}; do
             if curl -fsS http://localhost:9999 > /dev/null; then
               echo "Application is ready!"
-              break
+              exit 0
             fi
-
-            if ! kill -0 $APP_PID 2>/dev/null; then
-              echo "Application failed to start!"
-              cat app.log
-              exit 1
-            fi
-
             sleep 2
           done
+          echo "Application failed to start!"
+          exit 1
 
-          curl -fsS http://localhost:9999 > /dev/null || {
-            echo "Application is not responding!"
-            cat app.log
-            exit 1
-          }
-
-          ./gradlew clean build
+      - name: Build with Gradle
+        run: ./gradlew clean build
