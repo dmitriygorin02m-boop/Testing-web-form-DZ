@@ -44,7 +44,6 @@ build_script:
           javac -version
           
           $ErrorActionPreference = "Continue"
-          $PSNativeCommandUseErrorActionPreference = $false
           
           Write-Host "Starting application..."
           
@@ -89,8 +88,14 @@ build_script:
           Write-Host "Application is ready!"
           Write-Host "Starting Gradle tests..."
           
-          & .\gradlew.bat clean build
+          cmd.exe /c ".\gradlew.bat clean build > gradle.log 2>&1"
           
-          if ($LASTEXITCODE -ne 0) {
+          $gradleExitCode = $LASTEXITCODE
+          
+          Get-Content .\gradle.log
+          
+          if ($gradleExitCode -ne 0) {
               throw "Gradle build failed!"
           }
+          
+          Write-Host "Gradle build completed successfully!"
